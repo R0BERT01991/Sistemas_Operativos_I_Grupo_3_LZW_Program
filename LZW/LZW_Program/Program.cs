@@ -27,8 +27,25 @@ namespace LZW_Program
             // lzw -c C:\Users\Acer\Downloads\pic.jpg
             // lzw -d C:\Users\Acer\Downloads\pic.jpg.lzw
 
-            string text;
+            List<string> compressInputPath = new List<string>();
+            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg");
+            compressInputPath.Add(@"C:\Users\Acer\Downloads\pic1.jpg");
+            compressInputPath.Add(@"C:\Users\Acer\Downloads\pic2.jpg");
+            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg");
 
+            List<string> compressOutputPath = new List<string>();
+            compressOutputPath.Add(@"C:\Users\Acer\Downloads\result.lzw");
+            //compressOutputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg.lzw");
+
+            Compress(compressInputPath, compressOutputPath);
+            //Decompress(compressOutputPath, compressInputPath);
+
+            Console.Write("\n DONE");
+            Console.ReadLine();
+
+            /*
+            string text;
+            
             do
             {
                 Console.Write("\n command: ");
@@ -100,7 +117,7 @@ namespace LZW_Program
                 Console.ReadLine();
                 Console.Clear();
             }
-            while (text != "exit");
+            while (text != "exit");*/
         }
 
         //used to blank  out bit buffer incase this class is called to comprss and decompress from the same instance
@@ -110,16 +127,29 @@ namespace LZW_Program
             _iBitCounter = 0;
         }
 
-        public static bool Compress(string pInputFileName, string pOutputFileName)
+        public static bool Compress(List<string> pInputFileName, List<string> pOutputFileName)
         {
+            //List<Stream> reader = new List<Stream>();
+            //List<Stream> writer = new List<Stream>();
             Stream reader = null;
             Stream writer = null;
 
             try
             {
                 Initialize();
-                reader = new FileStream(pInputFileName, FileMode.Open);
-                writer = new FileStream(pOutputFileName, FileMode.Create);
+
+                for (int i = 0; i < pInputFileName.Count; i++)
+                {
+                    //reader.Add(new FileStream(pInputFileName[i], FileMode.Open));
+                    reader = new FileStream(pInputFileName[i], FileMode.Open);
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    //writer.Add(new FileStream(pOutputFileName[i], FileMode.Create));
+                    writer = new FileStream(pOutputFileName[i], FileMode.Create);
+                }
+
                 int iNextCode = 256;
                 int iChar = 0, iString = 0, iIndex = 0;
 
@@ -176,17 +206,28 @@ namespace LZW_Program
             {
                 Console.WriteLine(ex.StackTrace);
                 if (writer != null)
+                {
                     writer.Close();
-                File.Delete(pOutputFileName);
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    File.Delete(pOutputFileName[i]);
+                }
+
                 return false;
             }
 
             finally
             {
                 if (reader != null)
+                {
                     reader.Close();
+                }
                 if (writer != null)
+                {
                     writer.Close();
+                }
             }
 
             return true;
@@ -238,7 +279,7 @@ namespace LZW_Program
             }
         }
 
-        public static bool Decompress(string pInputFileName, string pOutputFileName)
+        public static bool Decompress(List<string> pInputFileName, List<string> pOutputFileName)
         {
             Stream reader = null;
             Stream writer = null;
@@ -246,8 +287,19 @@ namespace LZW_Program
             try
             {
                 Initialize();
-                reader = new FileStream(pInputFileName, FileMode.Open);
-                writer = new FileStream(pOutputFileName, FileMode.Create);
+
+                for (int i = 0; i < pInputFileName.Count; i++)
+                {
+                    //reader.Add(new FileStream(pInputFileName[i], FileMode.Open));
+                    reader = new FileStream(pInputFileName[i], FileMode.Open);
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    //writer.Add(new FileStream(pOutputFileName[i], FileMode.Create));
+                    writer = new FileStream(pOutputFileName[i], FileMode.Create);
+                }
+
                 int iNextCode = 256;
                 int iNewCode, iOldCode;
                 byte bChar;
@@ -285,8 +337,12 @@ namespace LZW_Program
                         //iCurrentCode = _iaPrefixTable[iCurrentCode];
                         baDecodeStack[iCounter] = (byte)_iaCharTable[iCurrentCode];
                         ++iCounter;
+
                         if (iCounter >= MAX_CODE)
+                        {
                             throw new Exception("oh crap");
+                        }
+
                         iCurrentCode = _iaPrefixTable[iCurrentCode];
                     }
 
@@ -320,16 +376,28 @@ namespace LZW_Program
             {
                 Console.WriteLine(ex.StackTrace);
                 if (writer != null)
+                {
                     writer.Close();
-                File.Delete(pOutputFileName);
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    File.Delete(pOutputFileName[i]);
+                }
+
                 return false;
             }
             finally
             {
                 if (reader != null)
+                { 
                     reader.Close();
+                }
+
                 if (writer != null)
+                {
                     writer.Close();
+                }
             }
 
             return true;
