@@ -44,21 +44,57 @@ namespace LZW_Program
             // lzw -c C:\Users\Acer\Downloads\pic.jpg
             // lzw -d C:\Users\Acer\Downloads\pic.jpg.lzw
 
-            List<string> compressInputPath = new List<string>();
-            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg");
-            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic1.jpg");
-            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic2.jpg");
-            compressInputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg");
+            // TEST WITH ONE FILE
+            /*
+            string InputPath = @"C:\Users\Acer\Downloads\pic.jpg";
+            string OutputPath = @"C:\Users\Acer\Downloads\pic.jpg.lzw";
 
-            List<string> compressOutputPath = new List<string>();
-            //compressOutputPath.Add(@"C:\Users\Acer\Downloads\result.lzw");
-            compressOutputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg.lzw");
-
-            //Compress(compressInputPath, compressOutputPath);
-            Decompress(compressOutputPath, compressInputPath);
-
-            Console.Write("\n DONE");
+            CompressOneFile(InputPath, OutputPath);
+            Console.Write("\n CompressOneFile DONE");
             Console.ReadLine();
+
+            DecompressOneFile(OutputPath, InputPath);
+            Console.Write("\n DecompressOneFile DONE");
+            Console.ReadLine();
+            */
+
+            // TEST WITH MULTIPLE FILES #1
+            List<string> InputPath = new List<string>();
+            InputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg");
+
+            List<string> OutputPath = new List<string>();
+            OutputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg.lzw");
+
+            CompressMultipleFiles(InputPath, OutputPath);
+            Console.Write("\n CompressMultipleFiles #1 DONE");
+            Console.ReadLine();
+
+            DecompressOneFile(OutputPath[0], InputPath[0]);
+            Console.Write("\n DecompressMultipleFiles #1 DONE");
+            Console.ReadLine();
+
+            /*
+            // TEST WITH MULTIPLE FILES #2
+            List<string> InputPath = new List<string>();
+            InputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg");
+            InputPath.Add(@"C:\Users\Acer\Downloads\pic1.jpg");
+            InputPath.Add(@"C:\Users\Acer\Downloads\pic2.jpg");
+            InputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg");
+
+            List<string> OutputPath = new List<string>();
+            OutputPath.Add(@"C:\Users\Acer\Downloads\result.lzw");
+            OutputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg.lzw");
+
+
+            CompressMultipleFiles(InputPath, OutputPath);
+            Console.Write("\n CompressMultipleFiles #2 DONE");
+            Console.ReadLine();
+
+            DecompressMultipleFiles(OutputPath, InputPath);
+            Console.Write("\n DecompressMultipleFiles #2 DONE");
+            Console.ReadLine();
+            */
+
 
             /*
             string text;
@@ -137,35 +173,25 @@ namespace LZW_Program
             while (text != "exit");*/
         }
 
+        // ONE FILE
+
         //used to blank  out bit buffer incase this class is called to comprss and decompress from the same instance
-        private static void Initialize()
+        private static void InitializeOneFile()
         {
             _iBitBuffer = 0;
             _iBitCounter = 0;
         }
 
-        public static bool Compress(List<string> pInputFileName, List<string> pOutputFileName)
+        public static bool CompressOneFile(string pInputFileName, string pOutputFileName)
         {
-            //List<Stream> reader = new List<Stream>();
-            //List<Stream> writer = new List<Stream>();
             Stream reader = null;
             Stream writer = null;
 
             try
             {
-                Initialize();
-
-                for (int i = 0; i < pInputFileName.Count; i++)
-                {
-                    //reader.Add(new FileStream(pInputFileName[i], FileMode.Open));
-                    reader = new FileStream(pInputFileName[i], FileMode.Open);
-                }
-
-                for (int i = 0; i < pOutputFileName.Count; i++)
-                {
-                    //writer.Add(new FileStream(pOutputFileName[i], FileMode.Create));
-                    writer = new FileStream(pOutputFileName[i], FileMode.Create);
-                }
+                InitializeOneFile();
+                reader = new FileStream(pInputFileName, FileMode.Open);
+                writer = new FileStream(pOutputFileName, FileMode.Create);
 
                 int iNextCode = 256;
                 int iChar = 0;
@@ -185,7 +211,7 @@ namespace LZW_Program
                 while ((iChar = reader.ReadByte()) != -1)
                 {
                     //get correct index for prefix+char
-                    iIndex = FindMatch(iString, iChar);
+                    iIndex = FindMatchOneFile(iString, iChar);
 
                     //set string if we have something at that index
                     if (_iaCodeTable[iIndex] != -1)
@@ -206,40 +232,37 @@ namespace LZW_Program
                         }
 
                         //output the data in the string
-                        WriteCode(writer, iString);
+                        WriteCodeOneFile(writer, iString);
                         iString = iChar;
                     }
                 }
 
                 //output last code
-                WriteCode(writer, iString);
+                WriteCodeOneFile(writer, iString);
 
                 //output end of buffer
-                WriteCode(writer, MAX_VALUE);
+                WriteCodeOneFile(writer, MAX_VALUE);
+
 
                 //flush
-                WriteCode(writer, 0);
+                WriteCodeOneFile(writer, 0);
             }
 
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-
                 if (writer != null)
                 {
                     writer.Close();
                 }
 
-                for (int i = 0; i < pOutputFileName.Count; i++)
-                {
-                    File.Delete(pOutputFileName[i]);
-                }
-
+                File.Delete(pOutputFileName);
                 return false;
             }
 
             finally
             {
+
                 if (reader != null)
                 {
                     reader.Close();
@@ -254,7 +277,7 @@ namespace LZW_Program
             return true;
         }
 
-        private static int FindMatch(int pPrefix, int pChar)
+        private static int FindMatchOneFile(int pPrefix, int pChar)
         {
             int index = 0;
             int offset = 0;
@@ -284,7 +307,7 @@ namespace LZW_Program
             }
         }
 
-        private static void WriteCode(Stream pWriter, int pCode)
+        private static void WriteCodeOneFile(Stream pWriter, int pCode)
         {
             //make space and insert new code in buffer
             _iBitBuffer |= (ulong)pCode << (32 - MAX_BITS - _iBitCounter);
@@ -308,28 +331,17 @@ namespace LZW_Program
             }
         }
 
-        public static bool Decompress(List<string> pInputFileName, List<string> pOutputFileName)
+        public static bool DecompressOneFile(string pInputFileName, string pOutputFileName)
         {
-            //List<Stream> reader = new List<Stream>();
-            //List<Stream> writer = new List<Stream>();
             Stream reader = null;
             Stream writer = null;
 
             try
             {
-                Initialize();
+                InitializeOneFile();
 
-                for (int i = 0; i < pInputFileName.Count; i++)
-                {
-                    //reader.Add(new FileStream(pInputFileName[i], FileMode.Open));
-                    reader = new FileStream(pInputFileName[i], FileMode.Open);
-                }
-
-                for (int i = 0; i < pOutputFileName.Count; i++)
-                {
-                    //writer.Add(new FileStream(pOutputFileName[i], FileMode.Create));
-                    writer = new FileStream(pOutputFileName[i], FileMode.Create);
-                }
+                reader = new FileStream(pInputFileName, FileMode.Open);
+                writer = new FileStream(pOutputFileName, FileMode.Create);
 
                 int iNextCode = 256;
                 int iNewCode;
@@ -339,13 +351,13 @@ namespace LZW_Program
                 int iCounter;
                 byte[] baDecodeStack = new byte[TABLE_SIZE];
 
-                iOldCode = ReadCode(reader);
+                iOldCode = ReadCodeOneFile(reader);
                 bChar = (byte)iOldCode;
 
                 //write first byte since it is plain ascii
                 writer.WriteByte((byte)iOldCode);
 
-                iNewCode = ReadCode(reader);
+                iNewCode = ReadCodeOneFile(reader);
 
                 //read file all file
                 while (iNewCode != MAX_VALUE)
@@ -402,7 +414,7 @@ namespace LZW_Program
                     iOldCode = iNewCode;
 
                     //if (reader.PeekChar() != 0)
-                    iNewCode = ReadCode(reader);
+                    iNewCode = ReadCodeOneFile(reader);
                 }
             }
             catch (Exception ex)
@@ -413,13 +425,11 @@ namespace LZW_Program
                     writer.Close();
                 }
 
-                for (int i = 0; i < pOutputFileName.Count; i++)
-                {
-                    File.Delete(pOutputFileName[i]);
-                }
+                File.Delete(pOutputFileName);
 
                 return false;
             }
+
             finally
             {
                 if (reader != null)
@@ -436,7 +446,385 @@ namespace LZW_Program
             return true;
         }
 
-        private static int ReadCode(Stream pReader)
+        private static int ReadCodeOneFile(Stream pReader)
+        {
+            uint iReturnVal;
+
+            //fill up buffer
+            while (_iBitCounter <= 24)
+            {
+                //insert byte into buffer
+                _iBitBuffer |= (ulong)pReader.ReadByte() << (24 - _iBitCounter);
+
+                //increment counter
+                _iBitCounter += 8;
+            }
+
+            //get last byte from buffer so we can return it
+            iReturnVal = (uint)_iBitBuffer >> (32 - MAX_BITS);
+
+            //remove it from buffer
+            _iBitBuffer <<= MAX_BITS;
+
+            //decrement bit counter
+            _iBitCounter -= MAX_BITS;
+
+            int temp = (int)iReturnVal;
+            return temp;
+        }
+
+
+        // MULTIPLE FILES
+        private static void InitializeMultipleFiles()
+        {
+            _iBitBuffer = 0;
+            _iBitCounter = 0;
+        }
+
+        public static bool CompressMultipleFiles(List<string> pInputFileName, List<string> pOutputFileName)
+        {
+            List<Stream> reader = new List<Stream>();
+            List<Stream> writer = new List<Stream>();
+
+            try
+            {
+                InitializeMultipleFiles();
+
+                for (int i = 0; i < pInputFileName.Count; i++)
+                {
+                    reader.Add(new FileStream(pInputFileName[i], FileMode.Open));
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    writer.Add(new FileStream(pOutputFileName[i], FileMode.Create));
+                }
+
+                int iNextCode = 256;
+                int iChar = 0;
+                //List<int> iString = new List<int>();
+                int iString = 0;
+                int iIndex = 0;
+
+                //blank out table
+                for (int i = 0; i < TABLE_SIZE; i++)
+                {
+                    _iaCodeTable[i] = -1;
+                }
+
+                //get first code, will be 0-255 ascii char
+
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    //iString.Add(reader[i].ReadByte());
+                    iString = reader[i].ReadByte();
+                }
+
+                //read until we reach end of file
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    while ((iChar = reader[i].ReadByte()) != -1)
+                    {
+                        //get correct index for prefix+char
+                        //iIndex = FindMatchMultipleFiles(iString[i], iChar)
+                        iIndex = FindMatchMultipleFiles(iString, iChar);
+
+                        //set string if we have something at that index
+                        if (_iaCodeTable[iIndex] != -1)
+                        {
+                            //iString[i] = _iaCodeTable[iIndex]
+                            iString = _iaCodeTable[iIndex];
+                        }
+
+                        //insert new entry
+                        else
+                        {
+                            //otherwise we insert into the tables
+                            if (iNextCode <= MAX_CODE)
+                            {
+                                //insert and increment next code to use
+                                _iaCodeTable[iIndex] = iNextCode++;
+                                //_iaPrefixTable[iIndex] = iString[i];
+                                _iaPrefixTable[iIndex] = iString;
+                                _iaCharTable[iIndex] = (byte)iChar;
+                            }
+
+                            //output the data in the string
+                            //WriteCodeMultipleFiles(writer[i], iString[i]);
+                            WriteCodeMultipleFiles(writer[i], iString);
+
+                            //iString.Add(iChar);
+                            iString = iChar;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < writer.Count; i++)
+                {
+                    //output last code
+                    //WriteCodeMultipleFiles(writer[i], iString[i]);
+                    WriteCodeMultipleFiles(writer[i], iString);
+
+                    //output end of buffer
+                    WriteCodeMultipleFiles(writer[i], MAX_VALUE);
+
+                    //flush
+                    WriteCodeMultipleFiles(writer[i], 0);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+
+                for (int i = 0; i < writer.Count; i++)
+                {
+                    if (writer != null)
+                    {
+                        writer[i].Close();
+                    }
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    File.Delete(pOutputFileName[i]);
+                }
+
+                return false;
+            }
+
+            finally
+            {
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    if (reader != null)
+                    {
+                        reader[i].Close();
+                    }
+                }
+
+                for (int i = 0; i < writer.Count; i++)
+                {
+                    if (writer != null)
+                    {
+                        writer[i].Close();
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static int FindMatchMultipleFiles(int pPrefix, int pChar)
+        {
+            int index = 0;
+            int offset = 0;
+
+            index = (pChar << HASH_BIT) ^ pPrefix;
+
+            offset = (index == 0) ? 1 : TABLE_SIZE - index;
+
+            while (true)
+            {
+                if (_iaCodeTable[index] == -1)
+                {
+                    return index;
+                }
+
+                if (_iaPrefixTable[index] == pPrefix && _iaCharTable[index] == pChar)
+                {
+                    return index;
+                }
+
+                index -= offset;
+
+                if (index < 0)
+                {
+                    index += TABLE_SIZE;
+                }
+            }
+        }
+
+        private static void WriteCodeMultipleFiles(Stream pWriter, int pCode)
+        {
+            //make space and insert new code in buffer
+            _iBitBuffer |= (ulong)pCode << (32 - MAX_BITS - _iBitCounter);
+
+            //increment bit counter
+            _iBitCounter += MAX_BITS;
+
+            //write all the bytes we can
+            while (_iBitCounter >= 8)
+            {
+                int temp = (byte)((_iBitBuffer >> 24) & 255);
+
+                //write byte from bit buffer
+                pWriter.WriteByte((byte)((_iBitBuffer >> 24) & 255));
+
+                //remove written byte from buffer
+                _iBitBuffer <<= 8;
+
+                //decrement counter
+                _iBitCounter -= 8;
+            }
+        }
+
+        public static bool DecompressMultipleFiles(List<string> pInputFileName, List<string> pOutputFileName)
+        {
+            List<Stream> reader = new List<Stream>();
+            List<Stream> writer = new List<Stream>();
+
+            try
+            {
+                InitializeMultipleFiles();
+
+                for (int i = 0; i < pInputFileName.Count; i++)
+                {
+                    reader.Add(new FileStream(pInputFileName[i], FileMode.Open));
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    writer.Add(new FileStream(pOutputFileName[i], FileMode.Create));
+                }
+
+                List<int> iNextCode = new List<int>();
+                List<int> iNewCode = new List<int>();
+                List<int> iOldCode = new List<int>();
+                List<byte> bChar = new List<byte>();
+                int iCurrentCode;
+                int iCounter;
+                byte[] baDecodeStack = new byte[TABLE_SIZE];
+
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    iNextCode.Add(256);
+                }
+
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    iOldCode.Add(ReadCodeMultipleFiles(reader[i]));
+                    bChar.Add((byte)iOldCode[i]);
+                }
+
+                //write first byte since it is plain ascii
+                for (int i = 0; i < writer.Count; i++)
+                {
+                    writer[i].WriteByte((byte)iOldCode[i]);
+                }
+
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    iNewCode.Add(ReadCodeMultipleFiles(reader[i]));
+                }
+
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    //read file all file
+                    while (iNewCode[i] != MAX_VALUE)
+                    {
+                        if (iNewCode[i] >= iNextCode[i])
+                        {
+                            //fix for prefix+chr+prefix+char+prefx special case
+                            baDecodeStack[0] = bChar[i];
+                            iCounter = 1;
+                            iCurrentCode = iOldCode[i];
+                        }
+                        else
+                        {
+                            iCounter = 0;
+                            iCurrentCode = iNewCode[i];
+                        }
+
+                        //decode string by cycling back through the prefixes
+                        while (iCurrentCode > 255)
+                        {
+                            //lstDecodeStack.Add((byte)_iaCharTable[iCurrentCode]);
+                            //iCurrentCode = _iaPrefixTable[iCurrentCode];
+                            baDecodeStack[iCounter] = (byte)_iaCharTable[iCurrentCode];
+                            ++iCounter;
+
+                            if (iCounter >= MAX_CODE)
+                            {
+                                throw new Exception("oh crap");
+                            }
+
+                            iCurrentCode = _iaPrefixTable[iCurrentCode];
+                        }
+
+                        baDecodeStack[iCounter] = (byte)iCurrentCode;
+
+                        //set last char used
+                        bChar.Add(baDecodeStack[iCounter]);
+
+                        //write out decodestack
+                        while (iCounter >= 0)
+                        {
+                            writer[i].WriteByte(baDecodeStack[iCounter]);
+
+                            --iCounter;
+                        }
+
+                        //insert into tables
+                        if (iNextCode[i] <= MAX_CODE)
+                        {
+                            _iaPrefixTable[iNextCode[i]] = iOldCode[i];
+                            _iaCharTable[iNextCode[i]] = bChar[i];
+                            ++iNextCode[i];
+                        }
+
+                        iOldCode = iNewCode;
+
+                        //if (reader.PeekChar() != 0)
+                        iNewCode.Add(ReadCodeMultipleFiles(reader[i]));
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+
+                for (int i = 0; i < writer.Count; i++)
+                {
+                    if (writer[i] != null)
+                    {
+                        writer[i].Close();
+                    }
+                }
+
+                for (int i = 0; i < pOutputFileName.Count; i++)
+                {
+                    File.Delete(pOutputFileName[i]);
+                }
+
+                return false;
+            }
+
+            finally
+            {
+                for (int i = 0; i < reader.Count; i++)
+                {
+                    if (reader[i] != null)
+                    {
+                        reader[i].Close();
+                    }
+                }
+
+                for (int i = 0; i < writer.Count; i++)
+                {
+
+                    if (writer[i] != null)
+                    {
+                        writer[i].Close();
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static int ReadCodeMultipleFiles(Stream pReader)
         {
             uint iReturnVal;
 
