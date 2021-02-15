@@ -98,7 +98,6 @@ namespace LZW_Program
 
         static void Main(string[] args)
         {
-
             string text;
 
             do
