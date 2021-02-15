@@ -224,6 +224,7 @@ namespace LZW_Program
                 {
                     reader.Close();
                 }
+
                 if (writer != null)
                 {
                     writer.Close();
@@ -244,14 +245,21 @@ namespace LZW_Program
             while (true)
             {
                 if (_iaCodeTable[index] == -1)
+                {
                     return index;
+                }
 
                 if (_iaPrefixTable[index] == pPrefix && _iaCharTable[index] == pChar)
+                {
                     return index;
+                }
 
                 index -= offset;
+
                 if (index < 0)
+                {
                     index += TABLE_SIZE;
+                }
             }
         }
 
@@ -281,6 +289,8 @@ namespace LZW_Program
 
         public static bool Decompress(List<string> pInputFileName, List<string> pOutputFileName)
         {
+            //List<Stream> reader = new List<Stream>();
+            //List<Stream> writer = new List<Stream>();
             Stream reader = null;
             Stream writer = null;
 
@@ -390,7 +400,7 @@ namespace LZW_Program
             finally
             {
                 if (reader != null)
-                { 
+                {
                     reader.Close();
                 }
 
