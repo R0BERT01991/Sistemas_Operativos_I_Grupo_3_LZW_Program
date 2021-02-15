@@ -46,16 +46,16 @@ namespace LZW_Program
 
             List<string> compressInputPath = new List<string>();
             //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg");
-            compressInputPath.Add(@"C:\Users\Acer\Downloads\pic1.jpg");
-            compressInputPath.Add(@"C:\Users\Acer\Downloads\pic2.jpg");
-            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg");
+            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic1.jpg");
+            //compressInputPath.Add(@"C:\Users\Acer\Downloads\pic2.jpg");
+            compressInputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg");
 
             List<string> compressOutputPath = new List<string>();
-            compressOutputPath.Add(@"C:\Users\Acer\Downloads\result.lzw");
-            //compressOutputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg.lzw");
+            //compressOutputPath.Add(@"C:\Users\Acer\Downloads\result.lzw");
+            compressOutputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg.lzw");
 
-            Compress(compressInputPath, compressOutputPath);
-            //Decompress(compressOutputPath, compressInputPath);
+            //Compress(compressInputPath, compressOutputPath);
+            Decompress(compressOutputPath, compressInputPath);
 
             Console.Write("\n DONE");
             Console.ReadLine();
