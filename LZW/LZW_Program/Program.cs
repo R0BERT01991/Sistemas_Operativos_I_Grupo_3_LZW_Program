@@ -23,15 +23,88 @@ namespace LZW_Program
 
         static void Main(string[] args)
         {
-            string pInputFileName = @"C:\Users\Acer\Downloads\pic.jpg";
-            string pOutputFileName = @"C:\Users\Acer\Downloads\pic.jpg.lzw";
+            // command:
+            // lzw -c C:\Users\Acer\Downloads\pic.jpg
+            // lzw -d C:\Users\Acer\Downloads\pic.jpg.lzw
 
-            Compress(pInputFileName, pOutputFileName);
+            string text;
 
-            Decompress(pOutputFileName, pInputFileName);
+            do
+            {
+                Console.Write("\n command: ");
+                text = Console.ReadLine();
+
+                string command = text.Substring(0, 3);
+
+                if (command.Trim() == "lzw")
+                {
+                    if (text[4].ToString().Trim() == "-")
+                    {
+                        if (text[5].ToString().Trim() == "c")
+                        {
+                            string compressInputPath = text.Substring(7);
+
+                            if (File.Exists(compressInputPath.Trim()) == true)
+                            {
+                                string compressOutputPath = compressInputPath + ".lzw";
+                                Compress(compressInputPath, compressOutputPath);
+                            }
+
+                            else
+                            {
+                                Console.WriteLine("\n The file doesnt exits");
+                            }
+                        }
+
+                        else if (text[5].ToString().Trim() == "d")
+                        {
+                            string decompressInputPath = text.Substring(7);
+
+                            if (File.Exists(decompressInputPath.Trim()))
+                            {
+                                string decompressOutputDirectory = Path.GetDirectoryName(decompressInputPath);
+                                string decompressOutputFile = Path.GetFileNameWithoutExtension(decompressInputPath);
+                                string decompressOutputPath = decompressOutputDirectory + @"\" + decompressOutputFile;
+                                Decompress(decompressInputPath, decompressOutputPath);
+                            }
+
+                            else
+                            {
+                                Console.WriteLine("\n The file doesnt exits");
+                            }
+                        }
+
+                        else if (text[5].ToString().Trim() == "h")
+                        {
+
+                        }
+
+                        else
+                        {
+                            Console.WriteLine("\n Invalid flag");
+                        }
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("\n No flag input");
+                    }
+                }
+
+                else
+                {
+                    Console.WriteLine("\n Invalid command");
+                }
+
+                Console.Write("\n Press any key to continue...");
+                Console.ReadLine();
+                Console.Clear();
+            }
+            while (text != "exit");
         }
 
-        private static void Initialize() //used to blank  out bit buffer incase this class is called to comprss and decompress from the same instance
+        //used to blank  out bit buffer incase this class is called to comprss and decompress from the same instance
+        private static void Initialize()
         {
             _iBitBuffer = 0;
             _iBitCounter = 0;
@@ -50,35 +123,55 @@ namespace LZW_Program
                 int iNextCode = 256;
                 int iChar = 0, iString = 0, iIndex = 0;
 
-                for (int i = 0; i < TABLE_SIZE; i++) //blank out table
-                    _iaCodeTable[i] = -1;
-
-                iString = reader.ReadByte(); //get first code, will be 0-255 ascii char
-
-                while ((iChar = reader.ReadByte()) != -1) //read until we reach end of file
+                //blank out table
+                for (int i = 0; i < TABLE_SIZE; i++)
                 {
-                    iIndex = FindMatch(iString, iChar); //get correct index for prefix+char
+                    _iaCodeTable[i] = -1;
+                }
 
-                    if (_iaCodeTable[iIndex] != -1) //set string if we have something at that index
-                        iString = _iaCodeTable[iIndex];
-                    else //insert new entry
+                //get first code, will be 0-255 ascii char
+                iString = reader.ReadByte();
+
+                //read until we reach end of file
+                while ((iChar = reader.ReadByte()) != -1)
+                {
+                    //get correct index for prefix+char
+                    iIndex = FindMatch(iString, iChar);
+
+                    //set string if we have something at that index
+                    if (_iaCodeTable[iIndex] != -1)
                     {
-                        if (iNextCode <= MAX_CODE) //otherwise we insert into the tables
+                        iString = _iaCodeTable[iIndex];
+                    }
+
+                    //insert new entry
+                    else
+                    {
+                        //otherwise we insert into the tables
+                        if (iNextCode <= MAX_CODE)
                         {
-                            _iaCodeTable[iIndex] = iNextCode++; //insert and increment next code to use
+                            //insert and increment next code to use
+                            _iaCodeTable[iIndex] = iNextCode++;
                             _iaPrefixTable[iIndex] = iString;
                             _iaCharTable[iIndex] = (byte)iChar;
                         }
 
-                        WriteCode(writer, iString); //output the data in the string
+                        //output the data in the string
+                        WriteCode(writer, iString);
                         iString = iChar;
                     }
                 }
 
-                WriteCode(writer, iString); //output last code
-                WriteCode(writer, MAX_VALUE); //output end of buffer
-                WriteCode(writer, 0); //flush
+                //output last code
+                WriteCode(writer, iString);
+
+                //output end of buffer
+                WriteCode(writer, MAX_VALUE);
+
+                //flush
+                WriteCode(writer, 0);
             }
+
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
@@ -87,6 +180,7 @@ namespace LZW_Program
                 File.Delete(pOutputFileName);
                 return false;
             }
+
             finally
             {
                 if (reader != null)
@@ -122,15 +216,25 @@ namespace LZW_Program
 
         private static void WriteCode(Stream pWriter, int pCode)
         {
-            _iBitBuffer |= (ulong)pCode << (32 - MAX_BITS - _iBitCounter); //make space and insert new code in buffer
-            _iBitCounter += MAX_BITS; //increment bit counter
+            //make space and insert new code in buffer
+            _iBitBuffer |= (ulong)pCode << (32 - MAX_BITS - _iBitCounter);
 
-            while (_iBitCounter >= 8) //write all the bytes we can
+            //increment bit counter
+            _iBitCounter += MAX_BITS;
+
+            //write all the bytes we can
+            while (_iBitCounter >= 8)
             {
                 int temp = (byte)((_iBitBuffer >> 24) & 255);
-                pWriter.WriteByte((byte)((_iBitBuffer >> 24) & 255)); //write byte from bit buffer
-                _iBitBuffer <<= 8; //remove written byte from buffer
-                _iBitCounter -= 8; //decrement counter
+
+                //write byte from bit buffer
+                pWriter.WriteByte((byte)((_iBitBuffer >> 24) & 255));
+
+                //remove written byte from buffer
+                _iBitBuffer <<= 8;
+
+                //decrement counter
+                _iBitCounter -= 8;
             }
         }
 
@@ -152,14 +256,18 @@ namespace LZW_Program
 
                 iOldCode = ReadCode(reader);
                 bChar = (byte)iOldCode;
-                writer.WriteByte((byte)iOldCode); //write first byte since it is plain ascii
+
+                //write first byte since it is plain ascii
+                writer.WriteByte((byte)iOldCode);
 
                 iNewCode = ReadCode(reader);
 
-                while (iNewCode != MAX_VALUE) //read file all file
+                //read file all file
+                while (iNewCode != MAX_VALUE)
                 {
                     if (iNewCode >= iNextCode)
-                    { //fix for prefix+chr+prefix+char+prefx special case
+                    {
+                        //fix for prefix+chr+prefix+char+prefx special case
                         baDecodeStack[0] = bChar;
                         iCounter = 1;
                         iCurrentCode = iOldCode;
@@ -170,7 +278,8 @@ namespace LZW_Program
                         iCurrentCode = iNewCode;
                     }
 
-                    while (iCurrentCode > 255) //decode string by cycling back through the prefixes
+                    //decode string by cycling back through the prefixes
+                    while (iCurrentCode > 255)
                     {
                         //lstDecodeStack.Add((byte)_iaCharTable[iCurrentCode]);
                         //iCurrentCode = _iaPrefixTable[iCurrentCode];
@@ -182,15 +291,19 @@ namespace LZW_Program
                     }
 
                     baDecodeStack[iCounter] = (byte)iCurrentCode;
-                    bChar = baDecodeStack[iCounter]; //set last char used
 
-                    while (iCounter >= 0) //write out decodestack
+                    //set last char used
+                    bChar = baDecodeStack[iCounter];
+
+                    //write out decodestack
+                    while (iCounter >= 0)
                     {
                         writer.WriteByte(baDecodeStack[iCounter]);
                         --iCounter;
                     }
 
-                    if (iNextCode <= MAX_CODE) //insert into tables
+                    //insert into tables
+                    if (iNextCode <= MAX_CODE)
                     {
                         _iaPrefixTable[iNextCode] = iOldCode;
                         _iaCharTable[iNextCode] = bChar;
@@ -226,15 +339,24 @@ namespace LZW_Program
         {
             uint iReturnVal;
 
-            while (_iBitCounter <= 24) //fill up buffer
+            //fill up buffer
+            while (_iBitCounter <= 24)
             {
-                _iBitBuffer |= (ulong)pReader.ReadByte() << (24 - _iBitCounter); //insert byte into buffer
-                _iBitCounter += 8; //increment counter
+                //insert byte into buffer
+                _iBitBuffer |= (ulong)pReader.ReadByte() << (24 - _iBitCounter);
+
+                //increment counter
+                _iBitCounter += 8;
             }
 
-            iReturnVal = (uint)_iBitBuffer >> (32 - MAX_BITS); //get last byte from buffer so we can return it
-            _iBitBuffer <<= MAX_BITS; //remove it from buffer
-            _iBitCounter -= MAX_BITS; //decrement bit counter
+            //get last byte from buffer so we can return it
+            iReturnVal = (uint)_iBitBuffer >> (32 - MAX_BITS);
+
+            //remove it from buffer
+            _iBitBuffer <<= MAX_BITS;
+
+            //decrement bit counter
+            _iBitCounter -= MAX_BITS;
 
             int temp = (int)iReturnVal;
             return temp;
