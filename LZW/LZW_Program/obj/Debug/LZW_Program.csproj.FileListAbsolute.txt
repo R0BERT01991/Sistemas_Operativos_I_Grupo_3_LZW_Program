@@ -1,0 +1,6 @@
+C:\Users\Acer\Documents\GitHub\Sistemas_Operativos_I_Grupo_3_LZW_Program\LZW\LZW_Program\obj\Debug\LZW_Program.csproj.CoreCompileInputs.cache
+C:\Users\Acer\Documents\GitHub\Sistemas_Operativos_I_Grupo_3_LZW_Program\LZW\LZW_Program\bin\Debug\LZW_Program.exe.config
+C:\Users\Acer\Documents\GitHub\Sistemas_Operativos_I_Grupo_3_LZW_Program\LZW\LZW_Program\bin\Debug\LZW_Program.exe
+C:\Users\Acer\Documents\GitHub\Sistemas_Operativos_I_Grupo_3_LZW_Program\LZW\LZW_Program\bin\Debug\LZW_Program.pdb
+C:\Users\Acer\Documents\GitHub\Sistemas_Operativos_I_Grupo_3_LZW_Program\LZW\LZW_Program\obj\Debug\LZW_Program.exe
+C:\Users\Acer\Documents\GitHub\Sistemas_Operativos_I_Grupo_3_LZW_Program\LZW\LZW_Program\obj\Debug\LZW_Program.pdb
