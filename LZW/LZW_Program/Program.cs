@@ -38,7 +38,7 @@ namespace LZW_Program
         //counter for knowing how many bits are in the bit buffer
         private static int _iBitCounter;
 
-        static void Main(string[] args)
+        static void test()
         {
             // command:
             // lzw -c C:\Users\Acer\Downloads\pic.jpg
@@ -94,11 +94,13 @@ namespace LZW_Program
             Console.Write("\n DecompressMultipleFiles #2 DONE");
             Console.ReadLine();
             */
+        }
 
+        static void Main(string[] args)
+        {
 
-            /*
             string text;
-            
+
             do
             {
                 Console.Write("\n command: ");
@@ -117,7 +119,7 @@ namespace LZW_Program
                             if (File.Exists(compressInputPath.Trim()) == true)
                             {
                                 string compressOutputPath = compressInputPath + ".lzw";
-                                Compress(compressInputPath, compressOutputPath);
+                                CompressOneFile(compressInputPath, compressOutputPath);
                             }
 
                             else
@@ -135,7 +137,7 @@ namespace LZW_Program
                                 string decompressOutputDirectory = Path.GetDirectoryName(decompressInputPath);
                                 string decompressOutputFile = Path.GetFileNameWithoutExtension(decompressInputPath);
                                 string decompressOutputPath = decompressOutputDirectory + @"\" + decompressOutputFile;
-                                Decompress(decompressInputPath, decompressOutputPath);
+                                DecompressOneFile(decompressInputPath, decompressOutputPath);
                             }
 
                             else
@@ -146,31 +148,39 @@ namespace LZW_Program
 
                         else if (text[5].ToString().Trim() == "h")
                         {
-
+                            Console.WriteLine("\n Help: ");
+                            Console.WriteLine("\n Compress file: lzw -c <filepath> ");
+                            Console.WriteLine("\n example : lzw -c " + @"C:\Users\Acer\Downloads\pic.jpg ");
+                            Console.WriteLine();
+                            Console.WriteLine("\n Decompress file: lzw -d <filepath> ");
+                            Console.WriteLine("\n example " + @"lzw -d C:\Users\Acer\Downloads\pic.jpg.lzw");
                         }
 
                         else
                         {
                             Console.WriteLine("\n Invalid flag");
+                            Console.WriteLine("\n Please try lzw -h for help");
                         }
                     }
 
                     else
                     {
                         Console.WriteLine("\n No flag input");
+                        Console.WriteLine("\n Please try lzw -h for help");
                     }
                 }
 
                 else
                 {
                     Console.WriteLine("\n Invalid command");
+                    Console.WriteLine("\n Please try lzw -h for help");
                 }
 
                 Console.Write("\n Press any key to continue...");
                 Console.ReadLine();
                 Console.Clear();
             }
-            while (text != "exit");*/
+            while (text != "exit");
         }
 
         // ONE FILE
@@ -242,7 +252,6 @@ namespace LZW_Program
 
                 //output end of buffer
                 WriteCodeOneFile(writer, MAX_VALUE);
-
 
                 //flush
                 WriteCodeOneFile(writer, 0);
