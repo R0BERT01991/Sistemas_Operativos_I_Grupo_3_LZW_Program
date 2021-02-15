@@ -239,7 +239,8 @@ namespace LZW_Program
 
         private static int FindMatch(int pPrefix, int pChar)
         {
-            int index = 0, offset = 0;
+            int index = 0;
+            int offset = 0;
 
             index = (pChar << HASH_BIT) ^ pPrefix;
 
