@@ -8,18 +8,35 @@ namespace LZW_Program
 {
     class Program
     {
-        private const int MAX_BITS = 14; //maimxum bits allowed to read
-        private const int HASH_BIT = MAX_BITS - 8; //hash bit to use with the hasing algorithm to find correct index
-        private const int MAX_VALUE = (1 << MAX_BITS) - 1; //max value allowed based on max bits
-        private const int MAX_CODE = MAX_VALUE - 1; //max code possible
-        private const int TABLE_SIZE = 18041; //must be bigger than the maximum allowed by maxbits and prime
+        //maimxum bits allowed to read
+        private const int MAX_BITS = 14;
 
-        private static int[] _iaCodeTable = new int[TABLE_SIZE]; //code table
-        private static int[] _iaPrefixTable = new int[TABLE_SIZE]; //prefix table
-        private static int[] _iaCharTable = new int[TABLE_SIZE]; //character table
+        //hash bit to use with the hasing algorithm to find correct index
+        private const int HASH_BIT = MAX_BITS - 8;
 
-        private static ulong _iBitBuffer; //bit buffer to temporarily store bytes read from the files
-        private static int _iBitCounter; //counter for knowing how many bits are in the bit buffer
+        //max value allowed based on max bits
+        private const int MAX_VALUE = (1 << MAX_BITS) - 1;
+
+        //max code possible
+        private const int MAX_CODE = MAX_VALUE - 1;
+
+        //must be bigger than the maximum allowed by maxbits and prime
+        private const int TABLE_SIZE = 18041;
+
+        //code table
+        private static int[] _iaCodeTable = new int[TABLE_SIZE];
+
+        //prefix table
+        private static int[] _iaPrefixTable = new int[TABLE_SIZE];
+
+        //character table
+        private static int[] _iaCharTable = new int[TABLE_SIZE];
+
+        //bit buffer to temporarily store bytes read from the files
+        private static ulong _iBitBuffer;
+
+        //counter for knowing how many bits are in the bit buffer
+        private static int _iBitCounter;
 
         static void Main(string[] args)
         {
