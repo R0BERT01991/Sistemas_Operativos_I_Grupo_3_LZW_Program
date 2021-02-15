@@ -1,10 +1,10 @@
 # Sistemas_Operativos_I_Grupo_3_LZW_Program
 
-#1. download the file <program.cs>
-#2. Open the cmd
-#3. Go to the folder where the file was downloaded: cd <FILE_PATH>
-#4  Compile the file with csc: csc <FILE_PATH>\program.cs
-#5: It will create a program.exe, run this file: program.exe
+- #1. download the file <program.cs>
+- #2. Open the cmd
+- #3. Go to the folder where the file was downloaded: cd <FILE_PATH>
+- #4  Compile the file with csc: csc <FILE_PATH>\program.cs
+- #5: It will create a program.exe, run this file: program.exe
 
 To compress files:
 lzw -c C:\Users\Acer\Downloads\pic.jpg
