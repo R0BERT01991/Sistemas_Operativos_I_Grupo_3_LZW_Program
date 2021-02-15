@@ -35,7 +35,7 @@ namespace LZW_Program
 
             List<string> compressOutputPath = new List<string>();
             compressOutputPath.Add(@"C:\Users\Acer\Downloads\result.lzw");
-            //compressOutputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg.lzw");
+            //compressOutputPath.Add(@"C:\Users\Acer\Downloads\pic3.jpg.lzw");
 
             Compress(compressInputPath, compressOutputPath);
             //Decompress(compressOutputPath, compressInputPath);
@@ -151,7 +151,9 @@ namespace LZW_Program
                 }
 
                 int iNextCode = 256;
-                int iChar = 0, iString = 0, iIndex = 0;
+                int iChar = 0;
+                int iString = 0;
+                int iIndex = 0;
 
                 //blank out table
                 for (int i = 0; i < TABLE_SIZE; i++)
@@ -205,6 +207,7 @@ namespace LZW_Program
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
+
                 if (writer != null)
                 {
                     writer.Close();
@@ -311,9 +314,11 @@ namespace LZW_Program
                 }
 
                 int iNextCode = 256;
-                int iNewCode, iOldCode;
+                int iNewCode;
+                int iOldCode;
                 byte bChar;
-                int iCurrentCode, iCounter;
+                int iCurrentCode;
+                int iCounter;
                 byte[] baDecodeStack = new byte[TABLE_SIZE];
 
                 iOldCode = ReadCode(reader);
