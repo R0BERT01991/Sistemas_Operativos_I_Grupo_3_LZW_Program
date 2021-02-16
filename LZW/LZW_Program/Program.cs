@@ -58,6 +58,7 @@ namespace LZW_Program
             Console.ReadLine();
             */
 
+            /*
             // TEST WITH MULTIPLE FILES #1
             List<string> InputPath = new List<string>();
             InputPath.Add(@"C:\Users\Acer\Downloads\pic.jpg");
@@ -72,6 +73,7 @@ namespace LZW_Program
             DecompressOneFile(OutputPath[0], InputPath[0]);
             Console.Write("\n DecompressMultipleFiles #1 DONE");
             Console.ReadLine();
+            */
 
             /*
             // TEST WITH MULTIPLE FILES #2
